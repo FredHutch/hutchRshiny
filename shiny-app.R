@@ -5,6 +5,7 @@ library(reshape2)
 library(ggplot2)
 library(plotly)
 library(dplyr)
+library(shinythemes)
 
 # Shiny app for visualizing taxon tables with associated metadata
 # Authors @William Frohlich & @Sam Minot
@@ -14,9 +15,11 @@ library(dplyr)
 
 # UI portion of the shiny app
 ui <- shinyUI(fluidPage(
+  theme = shinytheme('flatly'),
   #img(src="hutch.png", height = 30, width = 30),
-  column(9, headerPanel("Taxon Analysis", windowTitle = "Hutch")),
-  column(2, img(src="hutch.png", inline = TRUE, height = "40%", width = "40%")),
+  #column(9, headerPanel(windowTitle = "Hutch")),
+  column(1, img(src="hutch.png", inline = TRUE, height = "100%", width = "100%")),
+  column(4, headerPanel("Taxon Analysis", windowTitle = "Hutch"), align = "left", offset = 0),
   column(12, 
   sidebarLayout(
     sidebarPanel(
