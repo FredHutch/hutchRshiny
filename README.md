@@ -27,7 +27,7 @@ removed for any further analysis).
 
 *Taxon Table (CSV)*
 
-| tax_name | tax_id | rank | Sample_22_729-s522 | Sample_22_729-s520 | Sample_22_729-s521 | Sample_48_729-s522 | 
+| tax_name | tax_id | rank | Sample_A | Sample_B | Sample_C | Sample_D | 
 | --- | --- | --- | --- | --- | --- | --- |
 | Dialister | 39948 | genus | 283 | 289 | 228 | 594 |
 | Lachnospiraceae | 186803 | family | 193 | 0 | 0 | 200 |
@@ -39,10 +39,10 @@ removed for any further analysis).
 
 | name | Group | Treatment |
 | --- | --- | --- |
-| Sample_22_729-s522 | A | Control |
-| Sample_22_729-s520 | A | Control |
-| Sample_22_729-s521 | B | Control |
-| Sample_48_729-s522 | B | Treatment |
+| Sample_A | A | Control |
+| Sample_B | A | Control |
+| Sample_C | B | Control |
+| Sample_D | B | Treatment |
 
 ### Analyses
 
