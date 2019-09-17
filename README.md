@@ -52,3 +52,22 @@ The basic visualization provided by this app encompasses the following:
   * Plots showing the total number of reads per sample
   * Plots showing the estimated number of organisms in each sample (as calculated by [breakaway](https://github.com/adw96/breakaway))
   * Estimated coefficients for the differences in abundance of individual organisms across groups (as calculated by [corncob](https://github.com/bryandmartin/corncob))
+
+### Screenshots
+
+**Upload Data**
+
+![upload modal](https://raw.githubusercontent.com/FredHutch/shinyMicrobiomeAnalysis/master/www/upload_modal.png)
+
+**Stacked Bar Graph**
+![stacked bar graph](https://github.com/FredHutch/shinyMicrobiomeAnalysis/blob/master/www/stacked_bar_graph.png?raw=true)
+
+**Number of Reads**
+![sequencing depth](https://github.com/FredHutch/shinyMicrobiomeAnalysis/blob/master/www/sequencing_depth.png?raw=true)
+
+**Alpha Diversity**
+![alpha diversity](https://github.com/FredHutch/shinyMicrobiomeAnalysis/blob/master/www/alpha_diversity.png?raw=true)
+
+**Differential Abundance**
+![differential abundance](https://github.com/FredHutch/shinyMicrobiomeAnalysis/blob/master/www/differential_abundance.png?raw=true)
+
