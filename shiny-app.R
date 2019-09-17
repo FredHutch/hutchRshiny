@@ -18,7 +18,7 @@ library(shinythemes)
 ui <- shinyUI(fluidPage(
   theme = shinytheme('flatly'),
   column(1, img(src="hutch.png", inline = TRUE, height = "100%", width = "100%")),
-  column(4, headerPanel("Taxon Analysis", windowTitle = "Hutch"), align = "left", offset = 0),
+  column(4, headerPanel("Microbiome Analysis", windowTitle = "Hutch"), align = "left", offset = 0),
   column(12, 
          sidebarLayout(
            sidebarPanel(
