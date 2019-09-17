@@ -5,6 +5,7 @@ library(reshape2)
 library(ggplot2)
 library(plotly)
 library(dplyr)
+library(breakaway)
 library(shinythemes)
 
 # Shiny app for visualizing taxon tables with associated metadata
@@ -16,45 +17,121 @@ library(shinythemes)
 # UI portion of the shiny app
 ui <- shinyUI(fluidPage(
   theme = shinytheme('flatly'),
-  #img(src="hutch.png", height = 30, width = 30),
-  #column(9, headerPanel(windowTitle = "Hutch")),
   column(1, img(src="hutch.png", inline = TRUE, height = "100%", width = "100%")),
   column(4, headerPanel("Taxon Analysis", windowTitle = "Hutch"), align = "left", offset = 0),
   column(12, 
-  sidebarLayout(
-    sidebarPanel(
-      actionButton("show", "Upload files", width = '100%'),
-      tags$br(),
-      tags$br(), #Formatting
-      textOutput("selected_sample"),
-      tags$br(),
-      textOutput("selected_tax"),
-      width = 2
-    ),
-    mainPanel(
-      #creating tabs for each type of graph
-      tabsetPanel(
-        tabPanel("Stacked Bar",
-          sidebarLayout(
-            sidebarPanel(numericInput("num_stacks", "Select # stacks", 10),
-                         actionButton("numeric_input_ok", "OK", width = '100%'), 
-                         width = 3),
-            mainPanel(plotlyOutput('stacked_bar'))
-          )
-      ),
-      tabPanel("Reads per Sample",
-          sidebarLayout(
-            sidebarPanel(selectInput("sort.by","Sort By:",list(number_of_reads = "number_of_reads", sample_name = "sample_name")),
-                         width = 3), 
-            mainPanel(plotlyOutput('reads_per_sample'))
-          )   
-        )
-      )
-    )
+         sidebarLayout(
+           sidebarPanel(
+             actionButton("show", "Upload files", width = '100%'),
+             tags$br(),
+             tags$br(), #Formatting
+             textOutput("selected_sample"),
+             tags$br(),
+             textOutput("selected_tax"),
+             width = 3
+           ),
+           mainPanel(
+             #creating tabs for each type of graph
+             tabsetPanel(
+               tabPanel(
+                 "Stacked Bar",
+                 fluidPage(
+                   fluidRow(
+                     sliderInput(
+                       "num_stacks",
+                       "Number of taxa:",
+                       min = 2,
+                       max = 20,
+                       value = 10
+                     ),
+                     width = 5
+                   ),
+                   fluidRow(
+                     mainPanel(plotlyOutput('stacked_bar')),
+                     width = 10
+                   )
+                 )
+                 ),
+               tabPanel(
+                 "Reads per Sample",
+                 fluidPage(
+                   fluidRow(
+                     selectInput(
+                       "sort.by",
+                       "Sort By:",
+                       list(
+                         number_of_reads = "number_of_reads",
+                         sample_name = "sample_name"
+                       )
+                     ),
+                     width = 5
+                   ),
+                   fluidRow(
+                     mainPanel(plotlyOutput('reads_per_sample')),
+                     width = 10
+                   )
+                 )
+               ),
+               tabPanel(
+                 "Alpha Div. (breakaway)",
+                 fluidPage(
+                   fluidRow(
+                     selectInput(
+                       "sort.by.breakaway",
+                       "Sort By:",
+                       list(
+                         number_of_reads = "number_of_reads",
+                         sample_name = "sample_name"
+                       )
+                     ),
+                     width = 5
+                   ),
+                   fluidRow(
+                     mainPanel(plotlyOutput('breakaway_per_sample')),
+                     width = 10
+                   )
+                 )
+               ),
+               tabPanel(
+                 "Diff. Abund. (corncob)",
+                 fluidPage(
+                   fluidRow(
+                     column(
+                       width = 5,
+                       selectInput(
+                         "select.corncob",
+                         "Select Metadata:",
+                         list(
+                           all = "all"
+                         )
+                       )
+                     ),
+                     column(
+                       width = 5,
+                       sliderInput(
+                         "num.corncob.plots",
+                         "Number of plots:",
+                         min = 1,
+                         max = 10,
+                         value = 5
+                       )
+                     )
+                   ),
+                   fluidRow(
+                     mainPanel(plotlyOutput('top_taxa_boxplot')),
+                     width=10
+                   ),
+                   fluidRow(
+                     dataTableOutput("corncob")
+                   )
+                 )
+               )
+               )
+             )
+           )
+         )
   )
   )
-)
-)
 
 #SERVER
 server <- shinyServer(function(input, output, session) {
@@ -66,11 +143,6 @@ server <- shinyServer(function(input, output, session) {
   observeEvent(input$show, {
     showModal(dataModal())
   })
-  
-  vals <- eventReactive(input$numeric_input_ok, {
-    return(input$num_stacks)
-  })
-  
   
   #Make sure user has uploaded the files before they can remove the modal
   observeEvent(input$modal_ok, {
@@ -103,48 +175,103 @@ server <- shinyServer(function(input, output, session) {
   #helper function for reading in the metadata
   read_metadata <- function(sample_data_csv){
     # Read in metadata
-    return(read_csv(sample_data_csv))
+    metadata_df <- read_csv(sample_data_csv)
+    
+    # Set the first column as the specimen name
+    metadata_df <- column_to_rownames(metadata_df, var = colnames(metadata_df)[1])
+    
+    # Update the list to include all metadata columns
+    list_of_options <- list(
+      number_of_reads = "number_of_reads", 
+      sample_name = "sample_name"
+    )
+    for(metadata_field in colnames(metadata_df)){
+      list_of_options[metadata_field] <- metadata_field
+    }
+    updateSelectInput(
+      session,
+      "sort.by",
+      "Sort By:",
+      list_of_options
+    )
+    
+    list_of_options <- list(
+      number_of_taxa = "number_of_taxa", 
+      sample_name = "sample_name"
+    )
+    for(metadata_field in colnames(metadata_df)){
+      list_of_options[metadata_field] <- metadata_field
+    }
+    updateSelectInput(
+      session,
+      "sort.by.breakaway",
+      "Sort By:",
+      list_of_options
+    )
+    
+    return(metadata_df)
   }
     
   #helper function for reading in the taxon table
-  read_in_taxon_table <- function(taxon_table_csv, metadata_df){
-    # Read in read counts
-    read_df <- read.csv(taxon_table_csv, row.names=1, stringsAsFactors = FALSE)
+  read_in_taxon_table <- function(fp, metadata_df){
+    # Remove factors
+    read_df <- read_csv(fp)
     
-    # Remove the rows in the read counts that match columns in the metadata
-    for(metadata_field in colnames(metadata_df)){read_df <- read_df[rownames(read_df) != metadata_field,]}
-    read_df <- data.frame(read_df, stringsAsFactors = FALSE)
-      
-    # Convert to integers
+    # Make sure that the first column is the tax_name
+    stopifnot(colnames(read_df)[1] == "tax_name")
+    
+    # Set tax_name as the rownames
+    read_df <- column_to_rownames(read_df, var="tax_name")
+
+    # Make sure that tax_id and rank are in the columns, and remove them
+    for(col_name in c("tax_id", "rank")){
+      stopifnot(col_name %in% colnames(read_df))
+      read_df <- read_df[ , -which(colnames(read_df) == col_name)]
+    }
+    
+    # Make sure that we have metadata for each column name (which are all specimen names)
+    for(specimen_name in colnames(read_df)){
+      stopifnot(specimen_name %in% row.names(metadata_df))
+    }
+    
+    # Convert all values to integers
     for(col_name in colnames(read_df)){read_df[[col_name]] <- as.numeric(read_df[[col_name]])}
-      
+
     return (read_df)
   } 
   
   #reactive helper function for get_read_df
   get_metadata_df <- reactive({
     req(input$sample_data)
-    metadata_df <- read_metadata(input$sample_data$name)
+    metadata_df <- read_metadata(input$sample_data$datapath)
     return(metadata_df)
     })
 
   #get the appropriate data frame
   get_read_df <- reactive({
     req(input$taxon_table)
-    #print(input$sample_data$name)
-    #note that input$taxon_table actually returns a df so must use $name instead!!
-    read_df <- read_in_taxon_table((input$taxon_table)$name, get_metadata_df())
+    read_df <- read_in_taxon_table(input$taxon_table$datapath, get_metadata_df())
     return(read_df)
     })
-
-  #method to plot a reads per sample graph
-  plot_reads_per_sample <- function(read_df, sort_by){
-    # `sort_by` is either `sample_name` or `number_of_reads`
-    if(sort_by %in% c("number_of_reads", "sample_name")){}else{
-      print("Please specify sample_name or number_of_reads")
-    }
+  
+  # Calculate the proportional abundance of each organism
+  get_prop_df <- reactive({
+    req(input$taxon_table)
+    read_df <- get_read_df()
+    prop_df <- read_df / colSums(read_df)
+    rownames(prop_df) <- sapply(
+      rownames(prop_df),
+      function(s){return(sub(" ", ".", s))}
+    )
+    return(prop_df)
+  })
+  
+  get_total_reads_df <- reactive({
+    # Get the metadata
+    metadata_df <- get_metadata_df()
+    # Get the number of reads
+    read_df <- get_read_df()
     
-    # Plot the number of reads per sample
     # Add a TOTAL column for the number of reads
     read_df <- rbind(read_df, colSums(read_df))
     rownames(read_df)[nrow(read_df)] <- "TOTAL"
@@ -154,35 +281,219 @@ server <- shinyServer(function(input, output, session) {
     read_long = as_tibble(melt(read_df, id="org"))
     tot_reads <- read_long[read_long$org == "TOTAL",]
     
+    # Add all of the metadata columns
+    for(col_name in colnames(metadata_df)){
+      tot_reads[col_name] = as.vector(sapply(tot_reads["variable"], function(specimen_name){metadata_df[specimen_name, col_name]}))
+    }
+    
+    return(tot_reads)
+  })
+  
+  get_breakaway_df <- reactive({
+    # Get the metadata
+    metadata_df <- get_metadata_df()
+    # Get the number of reads
+    read_df <- get_read_df()
+    
+    # Run breakaway for each specimen
+    breakaway_df <- data.frame(apply(
+      read_df,
+      2,
+      function(counts){
+        r <- breakaway(counts)
+        return(c(
+          estimate=r$estimate, 
+          lower=r$interval[1], 
+          upper=r$interval[2],
+          error=r$error
+        ))
+      }
+    ), stringsAsFactors = FALSE)
+    breakaway_df <- data.frame(t(breakaway_df), stringsAsFactors = FALSE)
+    
+    breakaway_df$variable <- sapply(
+      row.names(breakaway_df),
+      function(s){return(sub("\\.", "-", s))}
+    )
+
+    # Add all of the metadata columns
+    for(col_name in colnames(metadata_df)){
+      values_to_replace <- sapply(breakaway_df$variable, function(specimen_name){metadata_df[specimen_name, col_name]})
+      print(values_to_replace)
+      breakaway_df[[col_name]] <- values_to_replace
+    }
+    
+    breakaway_df$lower <- breakaway_df$estimate - breakaway_df$error
+    breakaway_df$upper <- breakaway_df$estimate + breakaway_df$error
+    
+    return(breakaway_df)
+  })
+  
+  get_corncob_df <- reactive({
+    corncob_df <- run_corncob(get_read_df(), get_metadata_df())
+    
+    # Update the list to include all metadata columns
+    list_of_options <- list()
+    for(metadata_field in unique(corncob_df$metadata)){
+      list_of_options[metadata_field] <- metadata_field
+    }
+    updateSelectInput(
+      session,
+      "select.corncob",
+      "Select Metadata:",
+      list_of_options
+    )
+
+    return (corncob_df)
+  })
+  
+  output$corncob <- renderDataTable(
+    filter(get_corncob_df(), metadata == input$select.corncob),
+    options = list(
+      pageLength = 10
+    )
+  )
+
+  #method to plot a reads per sample graph
+  plot_reads_per_sample <- function(tot_reads, sort_by){
+    if(sort_by == "number_of_reads"){
+      sort_by <- "value"
+    } else if(sort_by == "sample_name"){
+      sort_by <- "variable"
+    }
+    tot_reads["sort_by"] <- tot_reads[[sort_by]]
+
     p <- ggplot(
       data=tot_reads
-    )
-    if(sort_by == "sample_name"){
-      p <- p + 
+    ) 
+    if(sort_by %in% c("value", "variable")){
+      p = p + 
         geom_bar(
           mapping = aes(
-            x = reorder(variable, variable), 
+            x = reorder(variable, sort_by), 
             y = value
           ),
           stat = "identity"
-        )
+        ) +
+        xlab("Sample Name")
+    }else{
+      p = p + 
+        geom_boxplot(
+          mapping = aes(
+            x = sort_by,
+            y = value
+          )
+        ) +
+        xlab(sort_by)
     }
-    if(sort_by == "number_of_reads"){
-      p <- p + 
+    p = p  +
+    ylab("Number of Reads") +
+    ggtitle("Sequencing Depth") + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+    
+    print(p)  
+  }
+  
+  #method to plot a reads per sample graph
+  plot_breakaway_per_sample <- function(breakaway_df, sort_by){
+    if(sort_by == "number_of_taxa"){
+      sort_by <- "estimate"
+    } else if(sort_by == "sample_name"){
+      sort_by <- "variable"
+    }
+    breakaway_df$sort_by <- breakaway_df[[sort_by]]
+    print(breakaway_df)
+    p <- ggplot(
+      data=breakaway_df
+    )
+    if(sort_by %in% c("estimate", "variable")){
+      p <- p +
         geom_bar(
           mapping = aes(
-            x = reorder(value, variable), 
-            y = value
+            x = reorder(variable, sort_by), 
+            y = estimate
           ),
           stat = "identity"
-        )
+        ) + geom_errorbar(
+          mapping = aes(
+            x = reorder(variable, sort_by),
+            ymin = lower,
+            ymax = upper
+          )
+        ) +
+        xlab("Sample Name")
+    } else {
+      p <- p +
+        geom_boxplot(
+          mapping = aes(
+            x = sort_by, 
+            y = estimate
+          )
+        ) +
+        xlab(sort_by)
     }
     p <- p +
-      xlab("Sample Name") +
-      ylab("Number of Reads") +
-      ggtitle("Sequencing Depth") + 
+      ylab("Estimated number of taxa") +
+      ggtitle("Alpha Diversity (breakaway)") + 
       theme(axis.text.x = element_text(angle = 90, hjust = 1))
+    
     print(p)  
+  }
+  
+  
+  #method to plot a reads per sample graph
+  plot_top_taxa_boxplot <- function(corncob_df, prop_df, metadata_df, selected_metadata, num_taxa){
+    orgs_to_plot = head(
+      filter(
+        corncob_df, 
+        metadata == selected_metadata
+        ), 
+      num_taxa
+    )$organism
+    
+    # Make into long format
+    prop_df$org <- rownames(prop_df)
+    long_df = as_tibble(melt(
+      prop_df[orgs_to_plot,], 
+      id="org"
+    ))
+    
+    # Figure out which metadata column to use
+    metadata_col = NULL
+    for(col_name in colnames(metadata_df)){
+      if(startsWith(selected_metadata, col_name)){
+        metadata_col <- col_name
+      }
+    }
+    
+    long_df$metadata <- sapply(
+      long_df$variable,
+      function(sample_name){
+        return(
+          metadata_df[sample_name, metadata_col]
+        )
+      }
+    )
+    
+    p <- ggplot(
+      data=long_df
+    ) + geom_boxplot(
+      mapping = aes(
+        x = metadata,
+        y = value
+      )
+    ) + facet_wrap(
+      ~ org,
+      scales = "free_y"
+    ) + ylab(
+      "Relative Abundance"
+    ) + xlab(
+      metadata_col
+    ) + theme(
+      axis.text.x = element_text(angle = 90, hjust = 1)
+    )
+    
+    print(p)
   }
   
   #method to plot a stacked bar graph
@@ -214,12 +525,12 @@ server <- shinyServer(function(input, output, session) {
     
     # Make a bar plot
     p <- ggplot(
-      data=long_df
+      data=rename(long_df, percent=value, sample=Var2, organism=Var1)
     ) + geom_bar(
       aes(
-        y = value, 
-        x = Var2, 
-        fill = Var1
+        y = percent, 
+        x = sample, 
+        fill = organism
       ),
       stat="identity"
     ) + ylab(
@@ -239,16 +550,30 @@ server <- shinyServer(function(input, output, session) {
     req(input$sample_data)
     req(input$taxon_table)
     #remember with reflexive functions to use parentheses after the function call
-    plot_stacked_bar_graph(get_read_df(), vals())
+    plot_stacked_bar_graph(get_read_df(), input$num_stacks)
   })
   
   #make the reads per sample graph
   output$reads_per_sample <- renderPlotly({
     req(input$sample_data)
     req(input$taxon_table)
-    plot_reads_per_sample(get_read_df(), input$sort.by)
+    plot_reads_per_sample(get_total_reads_df(), input$sort.by)
   })
   
+  #make the breakaway per sample graph
+  output$breakaway_per_sample <- renderPlotly({
+    req(input$sample_data)
+    req(input$taxon_table)
+    plot_breakaway_per_sample(get_breakaway_df(), input$sort.by.breakaway)
+  })
+  
+  #make the top taxa boxplot
+  output$top_taxa_boxplot <- renderPlotly({
+    req(input$sample_data)
+    req(input$taxon_table)
+    plot_top_taxa_boxplot(get_corncob_df(), get_prop_df(), get_metadata_df(), input$select.corncob, input$num.corncob.plots)
+  })
+
   #let the user know what files they've imported
   output$selected_sample <- renderText({ 
     paste("Metadata sheet: ", input$sample_data$name)
@@ -258,6 +583,76 @@ server <- shinyServer(function(input, output, session) {
     paste("Taxon sheet: ", input$taxon_table$name)
   })
 })
+
+make_metadata_numeric <- function(metaata_df){
+  # Convert each metadata category to a numeric
+  for(col_name in colnames(metadata_df)){
+    if(length(unique(metadata_df[[col_name]])) == 1){
+      metadata_df <- metadata_df[,-which(colnames(metadata_df) == col_name)]
+      next
+    }
+    if(is.numeric(metadata_df[[col_name]])){
+      next
+    }
+    # Get the unique set of values
+    col_values <- unique(metadata_df[[col_name]])
+    for(col_value in col_values[1:(length(col_values) - 1)]){
+      metadata_df[[paste(col_name, col_value, sep=".")]] <- as.numeric(metadata_df[[col_name]] == col_value)
+    }
+    metadata_df <- metadata_df[,-which(colnames(metadata_df) == col_name)]
+  }
+  return (metadata_df)
+}
+
+run_corncob <- function(reads_df, metadata_df){
+  
+  metadata_df <- make_metadata_numeric(metadata_df)
+  
+  # Rotate the reads_df
+  reads_df <- data.frame(t(reads_df), stringsAsFactors = FALSE)
+  
+  # Iterate over metadata columns
+  all_results <- do.call(rbind, lapply(
+    colnames(metadata_df),
+    function(metadata_col){
+      test_df <- data.frame(
+        total=rowSums(reads_df),
+        feature=metadata_df[[metadata_col]]
+      )
+      # Iterate over each organism
+      return(do.call(rbind, lapply(
+        colnames(reads_df),
+        function(org_name){
+          test_df$count <- reads_df[[org_name]]
+          r <- bbdml(
+            formula = cbind(count, total - count) ~ feature,
+            phi.formula = ~ feature,
+            data = test_df
+          )
+          s <- data.frame(summary(r)$coefficients, stringsAsFactors = FALSE)
+          s$organism <- org_name
+          s$metadata <- metadata_col
+          return(s["mu.feature",])
+        }
+      )))
+    }
+  ))
+  
+  rownames(all_results) <- c(1:nrow(all_results))
+  
+  all_results <- rename(
+    all_results, 
+    p.value="Pr...t..",
+    std.error="Std..Error",
+    estimate="Estimate"
+  )
+  
+  # Sort by p-value
+  all_results <- all_results[order(all_results$p.value),]
+  
+  return(all_results)
+  
+}
 
 
 #connect the ui & server and run
