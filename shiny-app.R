@@ -174,6 +174,7 @@ server <- shinyServer(function(input, output, session) {
   
   #helper function for reading in the metadata
   read_metadata <- function(sample_data_csv){
+    id <- showNotification("Reading in metadata sheet...")
     # Read in metadata
     metadata_df <- read_csv(sample_data_csv)
     
@@ -208,12 +209,13 @@ server <- shinyServer(function(input, output, session) {
       "Sort By:",
       list_of_options
     )
-    
+    removeNotification(id)
     return(metadata_df)
   }
     
   #helper function for reading in the taxon table
   read_in_taxon_table <- function(fp, metadata_df){
+    id <- showNotification("Reading in taxon table...")
     # Remove factors
     read_df <- read_csv(fp)
     
@@ -237,6 +239,7 @@ server <- shinyServer(function(input, output, session) {
     # Convert all values to integers
     for(col_name in colnames(read_df)){read_df[[col_name]] <- as.numeric(read_df[[col_name]])}
 
+    removeNotification(id)
     return (read_df)
   } 
   
@@ -290,6 +293,7 @@ server <- shinyServer(function(input, output, session) {
   })
   
   get_breakaway_df <- reactive({
+    id <- showNotification("Running breakaway...")
     # Get the metadata
     metadata_df <- get_metadata_df()
     # Get the number of reads
@@ -325,7 +329,7 @@ server <- shinyServer(function(input, output, session) {
     
     breakaway_df$lower <- breakaway_df$estimate - breakaway_df$error
     breakaway_df$upper <- breakaway_df$estimate + breakaway_df$error
-    
+    removeNotification(id)
     return(breakaway_df)
   })
   
@@ -605,7 +609,7 @@ make_metadata_numeric <- function(metaata_df){
 }
 
 run_corncob <- function(reads_df, metadata_df){
-  
+  id <- showNotification("Running corncob...")
   metadata_df <- make_metadata_numeric(metadata_df)
   
   # Rotate the reads_df
@@ -649,6 +653,8 @@ run_corncob <- function(reads_df, metadata_df){
   
   # Sort by p-value
   all_results <- all_results[order(all_results$p.value),]
+  
+  removeNotification(id)
   
   return(all_results)
   
