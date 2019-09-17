@@ -25,6 +25,14 @@ the  _taxon table_ should be `tax_name`, and the file may also
 contain columns labeled `tax_id` and `rank` (those will be
 removed for any further analysis). 
 
+Note that the taxon table file format is exactly the format
+output by the 16S amplicon analysis tool `maliampi` 
+([link](https://github.com/jgolob/maliampi/)). If you have raw
+16S data and would like to generate these taxon tables, consider
+using MaLiAmPi. Within the output folder, the most appropriate
+CSV to use for this visualization is likely `classify/tables/tallies_wide.species.csv`.
+
+
 *Taxon Table (CSV)*
 
 | tax_name | tax_id | rank | Sample_A | Sample_B | Sample_C | Sample_D | 
