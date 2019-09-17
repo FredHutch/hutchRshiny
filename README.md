@@ -28,7 +28,7 @@ removed for any further analysis).
 *Taxon Table (CSV)*
 
 | tax_name | tax_id | rank | Sample_22_729-s522 | Sample_22_729-s520 | Sample_22_729-s521 | Sample_48_729-s522 | 
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- | --- |
 | Dialister | 39948 | genus | 283 | 289 | 228 | 594 |
 | Lachnospiraceae | 186803 | family | 193 | 0 | 0 | 200 |
 | Saccharofermentans | 1200657 | genus | 289 | 384 | 105 | 456 |
