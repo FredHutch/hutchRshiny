@@ -469,7 +469,7 @@ shinyServer(function(input, output, session) {
   })
 })
 
-make_metadata_numeric <- function(metaata_df){
+make_metadata_numeric <- function(metadata_df){
   # Convert each metadata category to a numeric
   for(col_name in colnames(metadata_df)){
     if(length(unique(metadata_df[[col_name]])) == 1){
