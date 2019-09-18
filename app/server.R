@@ -6,6 +6,7 @@ library(ggplot2)
 library(plotly)
 library(dplyr)
 library(breakaway)
+library(corncob)
 library(shinythemes)
 
 # Shiny app for visualizing taxon tables with associated metadata
