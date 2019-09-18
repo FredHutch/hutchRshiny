@@ -8,5 +8,7 @@ RUN R -e "install.packages(c('BiocManager','devtools'),dependencies=TRUE, repos=
     R -e "devtools::install_github('adw96/breakaway')"
 RUN rm -rf /srv/shiny-server/
 ADD ./app/ /srv/shiny-server/01_hello
+ADD ./system/ /system
 EXPOSE 8888
-CMD /usr/bin/supervisord -c /srv/shiny-server/01_hello/system/sup.conf
+WORKDIR /srv/shiny-server/01_hello
+CMD R -f start.R
