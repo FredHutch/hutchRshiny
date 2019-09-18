@@ -274,7 +274,8 @@ shinyServer(function(input, output, session) {
     }
     p = p  +
     ylab("Number of Reads") +
-    ggtitle("Sequencing Depth") + 
+    ggtitle("Sequencing Depth") + theme_bw(
+    ) + 
     theme(axis.text.x = element_text(angle = 90, hjust = 1))
     
     print(p)  
@@ -321,6 +322,7 @@ shinyServer(function(input, output, session) {
     p <- p +
       ylab("Estimated number of taxa") +
       ggtitle("Alpha Diversity (breakaway)") + 
+      theme_bw() +
       theme(axis.text.x = element_text(angle = 90, hjust = 1))
     
     print(p)  
@@ -374,11 +376,12 @@ shinyServer(function(input, output, session) {
     ) + ylab(
       "Relative Abundance"
     ) + xlab(
-      metadata_col
+      ""
+    ) + theme_bw(
     ) + theme(
       axis.text.x = element_text(angle = 90, hjust = 1)
     )
-    
+
     print(p)
   }
   
@@ -423,6 +426,7 @@ shinyServer(function(input, output, session) {
       "Relative Abundance"
     ) + xlab(
       "Sample Name"
+    ) + theme_bw(
     ) + theme(
       axis.text.x = element_text(angle = 90, hjust = 1)
     ) + guides(
