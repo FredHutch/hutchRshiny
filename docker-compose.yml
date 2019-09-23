@@ -1,0 +1,9 @@
+version: '2'
+services:
+  shinymicrobiome:
+    image: dockerimages.fhcrc.org/shinymicrobiome:latest
+
+    labels:
+      io.rancher.container.pull_image: always
+
+    restart: always

@@ -99,6 +99,7 @@ shinyServer(function(input, output, session) {
   read_in_taxon_table <- function(fp, metadata_df){
     id <- showNotification("Reading in taxon table...")
     # Remove factors
+    
     read_df <- read_csv(fp)
     
     # Make sure that the first column is the tax_name
