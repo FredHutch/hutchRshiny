@@ -11,6 +11,11 @@ When combined with a _metadata sheet_ noting which specimens
 belong to which experimental groups, this app provides some
 very simple options for analyzing and visualizing those data.
 
+### Run the tool
+
+For Fred Hutch internal users, go to [https://shinymicrobiome.fredhutch.org](https://shinymicrobiome.fredhutch.org).
+For others, download this GitHub repository and follow the [instructions](https://shiny.rstudio.com/tutorial/written-tutorial/lesson7/) to run locally.
+
 ### Input Data
 
 Input data consists of two files -- a _taxon table_ and a
