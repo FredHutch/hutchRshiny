@@ -241,6 +241,7 @@ shinyServer(function(input, output, session) {
 
   #method to plot a reads per sample graph
   plot_reads_per_sample <- function(tot_reads, sort_by){
+    id <- showNotification("Plotting reads per sample...")
     if(sort_by == "number_of_reads"){
       sort_by <- "value"
     } else if(sort_by == "sample_name"){
@@ -277,11 +278,13 @@ shinyServer(function(input, output, session) {
     ) + 
     theme(axis.text.x = element_text(angle = 90, hjust = 1))
     
+    removeNotification(id)
     print(p)  
   }
   
   #method to plot a reads per sample graph
   plot_breakaway_per_sample <- function(breakaway_df, sort_by){
+    id <- showNotification("Making breakaway plot...")
     if(sort_by == "number_of_taxa"){
       sort_by <- "estimate"
     } else if(sort_by == "sample_name"){
@@ -323,12 +326,14 @@ shinyServer(function(input, output, session) {
       theme_bw() +
       theme(axis.text.x = element_text(angle = 90, hjust = 1))
     
+    removeNotification(id)
     print(p)  
   }
   
   
   #method to plot a reads per sample graph
   plot_top_taxa_boxplot <- function(corncob_df, prop_df, metadata_df, selected_metadata, num_taxa){
+    id <- showNotification("Making barplot...")
     orgs_to_plot = head(
       filter(
         corncob_df, 
@@ -380,11 +385,13 @@ shinyServer(function(input, output, session) {
       axis.text.x = element_text(angle = 90, hjust = 1)
     )
 
+    removeNotification(id)
     print(p)
   }
   
   #method to plot a stacked bar graph
   plot_stacked_bar_graph <- function(read_df, number_of_organisms){
+    id <- showNotification("Formatting stacked bar graph...")
     
     if(number_of_organisms < 1){
       print("Please specify a number of organisms >= 1")
@@ -430,6 +437,7 @@ shinyServer(function(input, output, session) {
     ) + guides(
       fill=guide_legend(title="Organism")
     )
+    removeNotification(id)
     print(p)
   }
   
@@ -473,6 +481,8 @@ shinyServer(function(input, output, session) {
 })
 
 make_metadata_numeric <- function(metadata_df){
+  id <- showNotification("Processing metadata...")
+  
   # Convert each metadata category to a numeric
   for(col_name in colnames(metadata_df)){
     if(length(unique(metadata_df[[col_name]])) == 1){
@@ -489,11 +499,12 @@ make_metadata_numeric <- function(metadata_df){
     }
     metadata_df <- metadata_df[,-which(colnames(metadata_df) == col_name)]
   }
+  removeNotification(id)
   return (metadata_df)
 }
 
 run_corncob <- function(reads_df, metadata_df){
-  id <- showNotification("Running corncob...")
+  id <- showNotification("Running corncob, this could take a while...")
   metadata_df <- make_metadata_numeric(metadata_df)
   
   # Rotate the reads_df
