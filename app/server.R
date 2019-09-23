@@ -205,7 +205,6 @@ shinyServer(function(input, output, session) {
     # Add all of the metadata columns
     for(col_name in colnames(metadata_df)){
       values_to_replace <- sapply(breakaway_df$variable, function(specimen_name){metadata_df[specimen_name, col_name]})
-      print(values_to_replace)
       breakaway_df[[col_name]] <- values_to_replace
     }
     
@@ -289,7 +288,6 @@ shinyServer(function(input, output, session) {
       sort_by <- "variable"
     }
     breakaway_df$sort_by <- breakaway_df[[sort_by]]
-    print(breakaway_df)
     p <- ggplot(
       data=breakaway_df
     )
