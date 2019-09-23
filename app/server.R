@@ -109,7 +109,6 @@ shinyServer(function(input, output, session) {
 
     # Make sure that tax_id and rank are in the columns, and remove them
     for(col_name in c("tax_id", "rank")){
-      stopifnot(col_name %in% colnames(read_df))
       read_df <- read_df[ , -which(colnames(read_df) == col_name)]
     }
     
