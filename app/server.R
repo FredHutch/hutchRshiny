@@ -238,6 +238,22 @@ shinyServer(function(input, output, session) {
       pageLength = 10
     )
   )
+  
+  output$downloadCorncob <- downloadHandler(
+    filename = "differential_abundance_corncob.csv",
+    content = function(file) {
+      write.csv(get_corncob_df(), file, row.names = FALSE)
+    }
+  )
+  
+  output$downloadBreakaway <- downloadHandler(
+    filename = "alpha_diversity_breakaway.csv",
+    content = function(file) {
+      write.csv(get_breakaway_df(), file, row.names = FALSE)
+    }
+  )
+  
+  
 
   #method to plot a reads per sample graph
   plot_reads_per_sample <- function(tot_reads, sort_by){

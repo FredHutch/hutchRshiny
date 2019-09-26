@@ -84,6 +84,9 @@ shinyUI(fluidPage(
                    fluidRow(
                      mainPanel(plotlyOutput('breakaway_per_sample')),
                      width = 10
+                   ),
+                   fluidRow(
+                     downloadButton("downloadBreakaway", "Download Table")
                    )
                  )
                ),
@@ -118,6 +121,9 @@ shinyUI(fluidPage(
                    ),
                    fluidRow(
                      dataTableOutput("corncob")
+                   ),
+                   fluidRow(
+                     downloadButton("downloadCorncob", "Download Table")
                    )
                  )
                )
