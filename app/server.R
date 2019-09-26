@@ -400,6 +400,11 @@ shinyServer(function(input, output, session) {
       print("Please specify a number of organisms <= 50")
     }
     
+    if(number_of_organisms > nrow(read_df)){
+      id2 <- showNotification(paste("Maximum number of organisms to plot is ", nrow(read_df)))
+      number_of_organisms <- nrow(read_df)
+    }
+
     # Calculate the proportion of reads per sample
     prop_df <- t(t(read_df) / colSums(read_df))
     
