@@ -527,16 +527,29 @@ run_corncob <- function(reads_df, metadata_df){
       return(do.call(rbind, lapply(
         colnames(reads_df),
         function(org_name){
-          test_df$count <- reads_df[[org_name]]
-          r <- bbdml(
-            formula = cbind(count, total - count) ~ feature,
-            phi.formula = ~ feature,
-            data = test_df
-          )
-          s <- data.frame(summary(r)$coefficients, stringsAsFactors = FALSE)
-          s$organism <- org_name
-          s$metadata <- metadata_col
-          return(s["mu.feature",])
+            test_df$count <- reads_df[[org_name]]
+            tryCatch({
+              r <- bbdml(
+                formula = cbind(count, total - count) ~ feature,
+                phi.formula = ~ feature,
+                data = test_df
+              )
+              s <- data.frame(summary(r)$coefficients, stringsAsFactors = FALSE)
+              s$organism <- org_name
+              s$metadata <- metadata_col
+              result <- s["mu.feature",]
+              print("try")
+              print(result)
+            }, warning = function(war){
+            }, error = function(err){
+            }, finally = {
+            })
+            if(exists("result")){
+              return(result)
+            } else {
+              return(NULL)
+            }
+            
         }
       )))
     }
