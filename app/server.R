@@ -499,7 +499,7 @@ make_metadata_numeric <- function(metadata_df){
     }
     # Get the unique set of values
     col_values <- unique(metadata_df[[col_name]])
-    for(col_value in col_values[1:(length(col_values) - 1)]){
+    for(col_value in col_values){
       metadata_df[[paste(col_name, col_value, sep=".")]] <- as.numeric(metadata_df[[col_name]] == col_value)
     }
     metadata_df <- metadata_df[,-which(colnames(metadata_df) == col_name)]
