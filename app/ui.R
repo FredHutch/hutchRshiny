@@ -36,7 +36,7 @@ shinyUI(fluidPage(
                        "num_stacks",
                        "Number of taxa:",
                        min = 2,
-                       max = 20,
+                       max = 40,
                        value = 10
                      ),
                      width = 5
