@@ -402,7 +402,7 @@ shinyServer(function(input, output, session) {
         y = value
       )
     ) + facet_wrap(
-      ~ org,
+      ~ factor(org, levels=orgs_to_plot),
       scales = "free_y"
     ) + ylab(
       "Relative Abundance"
