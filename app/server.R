@@ -105,6 +105,18 @@ shinyServer(function(input, output, session) {
     # Make sure that the first column is the tax_name
     stopifnot(colnames(read_df)[1] == "tax_name")
     
+    # Fix some odd strings which may be in the taxa name
+    for(ch in c("\\[", "\\]")){
+      read_df$tax_name <- sapply(read_df$tax_name, function(s){
+        gsub(ch, "", s)
+      })
+    }
+    for(ch in c("/")){
+      read_df$tax_name <- sapply(read_df$tax_name, function(s){
+        gsub(ch, " ", s)
+      })
+    }
+
     # Set tax_name as the rownames
     read_df <- column_to_rownames(read_df, var="tax_name")
 
