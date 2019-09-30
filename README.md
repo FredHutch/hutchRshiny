@@ -13,8 +13,9 @@ very simple options for analyzing and visualizing those data.
 
 ### Run the tool
 
-For Fred Hutch internal users, go to [https://shinymicrobiome.fredhutch.org](https://shinymicrobiome.fredhutch.org).
-For others, download this GitHub repository and follow the [instructions](https://shiny.rstudio.com/tutorial/written-tutorial/lesson7/) to run locally.
+Go to [https://shinymicrobiome.fredhutch.org](https://shinymicrobiome.fredhutch.org) for a live version of the tool.
+For local execution, download this GitHub repository and follow the [instructions](https://shiny.rstudio.com/tutorial/written-tutorial/lesson7/) to run.
+
 
 ### Input Data
 
