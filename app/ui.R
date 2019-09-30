@@ -23,6 +23,15 @@ shinyUI(fluidPage(
              textOutput("selected_sample"),
              tags$br(),
              textOutput("selected_tax"),
+             tags$br(),
+             tags$a(
+               href="https://github.com/FredHutch/shinyMicrobiomeAnalysis#shiny-microbiome-analysis", 
+               icon("question-circle")
+              ),
+             tags$a(
+               href="https://github.com/FredHutch/shinyMicrobiomeAnalysis#shiny-microbiome-analysis", 
+               "Getting Started"
+              ),
              width = 3
            ),
            mainPanel(
