@@ -15,6 +15,26 @@ library(shinythemes)
 # Fredricks Lab
 # Fred Hutch
 
+fix_sample_names <- function(sample_name_vec){
+  # Sample names may often have characters that are coerced unpredictably
+  # By changing these names we lower the risk of mishap
+  
+  for(char in c("-", "_", "/")){
+    sample_name_vec <- sapply(
+      sample_name_vec,
+      function(s){gsub("-", ".", s)}
+    )
+  }
+  for(char in c("[", "]", "^", "$")){
+    sample_name_vec <- sapply(
+      sample_name_vec,
+      function(s){gsub("-", "", s)}
+    )
+  }
+  
+  return(sample_name_vec)
+}
+
 #SERVER
 shinyServer(function(input, output, session) {
   # added "session" because updateSelectInput requires it
@@ -63,6 +83,9 @@ shinyServer(function(input, output, session) {
     # Set the first column as the specimen name
     metadata_df <- column_to_rownames(metadata_df, var = colnames(metadata_df)[1])
     
+    # Change all '-' to '.' in the row names
+    rownames(metadata_df) <- fix_sample_names(rownames(metadata_df))
+    
     # Update the list to include all metadata columns
     list_of_options <- list(
       number_of_reads = "number_of_reads", 
@@ -104,6 +127,8 @@ shinyServer(function(input, output, session) {
     
     # Make sure that the first column is the tax_name
     stopifnot(colnames(read_df)[1] == "tax_name")
+    
+    colnames(read_df) <-fix_sample_names(colnames(read_df))
     
     # Fix some odd strings which may be in the taxa name
     for(ch in c("\\[", "\\]")){
@@ -208,18 +233,16 @@ shinyServer(function(input, output, session) {
       }
     ), stringsAsFactors = FALSE)
     breakaway_df <- data.frame(t(breakaway_df), stringsAsFactors = FALSE)
-    
-    breakaway_df$variable <- sapply(
-      row.names(breakaway_df),
-      function(s){return(sub("\\.", "-", s))}
-    )
 
     # Add all of the metadata columns
     for(col_name in colnames(metadata_df)){
-      values_to_replace <- sapply(breakaway_df$variable, function(specimen_name){metadata_df[specimen_name, col_name]})
-      breakaway_df[[col_name]] <- values_to_replace
+      breakaway_df[[col_name]] <- sapply(
+        rownames(breakaway_df), 
+        function(specimen_name){metadata_df[specimen_name, col_name]}
+      )
     }
-    
+    breakaway_df$variable <- rownames(breakaway_df)
+
     breakaway_df$lower <- breakaway_df$estimate - breakaway_df$error
     breakaway_df$upper <- breakaway_df$estimate + breakaway_df$error
     removeNotification(id)
