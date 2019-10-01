@@ -144,7 +144,7 @@ shinyServer(function(input, output, session) {
 
     # Set tax_name as the rownames
     read_df <- column_to_rownames(read_df, var="tax_name")
-
+    
     # Make sure that tax_id and rank are in the columns, and remove them
     for(col_name in c("tax_id", "rank")){
       read_df <- read_df[ , -which(colnames(read_df) == col_name)]
@@ -157,7 +157,7 @@ shinyServer(function(input, output, session) {
     
     # Convert all values to integers
     for(col_name in colnames(read_df)){read_df[[col_name]] <- as.numeric(read_df[[col_name]])}
-
+    
     removeNotification(id)
     return (read_df)
   } 
@@ -167,14 +167,14 @@ shinyServer(function(input, output, session) {
     req(input$sample_data)
     metadata_df <- read_metadata(input$sample_data$datapath)
     return(metadata_df)
-    })
-
+  })
+  
   #get the appropriate data frame
   get_read_df <- reactive({
     req(input$taxon_table)
     read_df <- read_in_taxon_table(input$taxon_table$datapath, get_metadata_df())
     return(read_df)
-    })
+  })
   
   # Calculate the proportional abundance of each organism
   get_prop_df <- reactive({
@@ -233,7 +233,7 @@ shinyServer(function(input, output, session) {
       }
     ), stringsAsFactors = FALSE)
     breakaway_df <- data.frame(t(breakaway_df), stringsAsFactors = FALSE)
-
+    
     # Add all of the metadata columns
     for(col_name in colnames(metadata_df)){
       breakaway_df[[col_name]] <- sapply(
@@ -242,7 +242,7 @@ shinyServer(function(input, output, session) {
       )
     }
     breakaway_df$variable <- rownames(breakaway_df)
-
+    
     breakaway_df$lower <- breakaway_df$estimate - breakaway_df$error
     breakaway_df$upper <- breakaway_df$estimate + breakaway_df$error
     removeNotification(id)
@@ -263,7 +263,7 @@ shinyServer(function(input, output, session) {
       "Select Metadata:",
       list_of_options
     )
-
+    
     return (corncob_df)
   })
   
@@ -289,7 +289,7 @@ shinyServer(function(input, output, session) {
   )
   
   
-
+  
   #method to plot a reads per sample graph
   plot_reads_per_sample <- function(tot_reads, sort_by){
     id <- showNotification("Plotting reads per sample...")
@@ -299,7 +299,7 @@ shinyServer(function(input, output, session) {
       sort_by <- "variable"
     }
     tot_reads["sort_by"] <- tot_reads[[sort_by]]
-
+    
     p <- ggplot(
       data=tot_reads
     ) 
@@ -324,10 +324,10 @@ shinyServer(function(input, output, session) {
         xlab(sort_by)
     }
     p = p  +
-    ylab("Number of Reads") +
-    ggtitle("Sequencing Depth") + theme_bw(
-    ) + 
-    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+      ylab("Number of Reads") +
+      ggtitle("Sequencing Depth") + theme_bw(
+      ) + 
+      theme(axis.text.x = element_text(angle = 90, hjust = 1))
     
     removeNotification(id)
     print(p)  
@@ -389,7 +389,7 @@ shinyServer(function(input, output, session) {
       filter(
         corncob_df, 
         metadata == selected_metadata
-        ), 
+      ), 
       num_taxa
     )$organism
     
@@ -435,7 +435,7 @@ shinyServer(function(input, output, session) {
     ) + theme(
       axis.text.x = element_text(angle = 90, hjust = 1)
     )
-
+    
     removeNotification(id)
     print(p)
   }
@@ -455,7 +455,7 @@ shinyServer(function(input, output, session) {
       id2 <- showNotification(paste("Maximum number of organisms to plot is ", nrow(read_df)))
       number_of_organisms <- nrow(read_df)
     }
-
+    
     # Calculate the proportion of reads per sample
     prop_df <- t(t(read_df) / colSums(read_df))
     
@@ -525,7 +525,7 @@ shinyServer(function(input, output, session) {
     req(input$taxon_table)
     plot_top_taxa_boxplot(get_corncob_df(), get_prop_df(), get_metadata_df(), input$select.corncob, input$num.corncob.plots)
   })
-
+  
   #let the user know what files they've imported
   output$selected_sample <- renderText({ 
     paste("Metadata sheet: ", input$sample_data$name)
@@ -578,29 +578,29 @@ run_corncob <- function(reads_df, metadata_df){
       return(do.call(rbind, lapply(
         colnames(reads_df),
         function(org_name){
-            test_df$count <- reads_df[[org_name]]
-            tryCatch({
-              r <- bbdml(
-                formula = cbind(count, total - count) ~ feature,
-                phi.formula = ~ feature,
-                data = test_df
-              )
-              s <- data.frame(summary(r)$coefficients, stringsAsFactors = FALSE)
-              s$organism <- org_name
-              s$metadata <- metadata_col
-              result <- s["mu.feature",]
-              print("try")
-              print(result)
-            }, warning = function(war){
-            }, error = function(err){
-            }, finally = {
-            })
-            if(exists("result")){
-              return(result)
-            } else {
-              return(NULL)
-            }
-            
+          test_df$count <- reads_df[[org_name]]
+          tryCatch({
+            r <- bbdml(
+              formula = cbind(count, total - count) ~ feature,
+              phi.formula = ~ feature,
+              data = test_df
+            )
+            s <- data.frame(summary(r)$coefficients, stringsAsFactors = FALSE)
+            s$organism <- org_name
+            s$metadata <- metadata_col
+            result <- s["mu.feature",]
+            print("try")
+            print(result)
+          }, warning = function(war){
+          }, error = function(err){
+          }, finally = {
+          })
+          if(exists("result")){
+            return(result)
+          } else {
+            return(NULL)
+          }
+          
         }
       )))
     }
