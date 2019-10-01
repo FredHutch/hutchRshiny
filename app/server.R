@@ -141,7 +141,16 @@ shinyServer(function(input, output, session) {
         gsub(ch, " ", s)
       })
     }
-
+    
+    # Limit the taxon names to a fixed number of characters
+    read_df$tax_name <- sapply(read_df$tax_name, function(s){
+      if(nchar(s) < 25){
+        return(s)
+      }else{
+        return(paste(substr(s, 1, 25), "...", sep=""))
+      }
+    })
+    
     # Set tax_name as the rownames
     read_df <- column_to_rownames(read_df, var="tax_name")
     
