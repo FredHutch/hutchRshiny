@@ -32,6 +32,15 @@ shinyUI(fluidPage(
                href="https://github.com/FredHutch/shinyMicrobiomeAnalysis#shiny-microbiome-analysis", 
                "Getting Started"
               ),
+             tags$br(),
+             tags$a(
+               href="https://github.com/FredHutch/shinyMicrobiomeAnalysis/issues/new", 
+               icon("exclamation-circle")
+             ),
+             tags$a(
+               href="https://github.com/FredHutch/shinyMicrobiomeAnalysis/issues/new", 
+               "Report an Issue"
+             ),
              width = 3
            ),
            mainPanel(
