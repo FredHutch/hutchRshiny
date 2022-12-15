@@ -12,7 +12,7 @@ services:
         - "traefik.http.routers.shinymicrobiome.rule=Host(`shinymicrobiome.fredhutch.org`)"
         - "traefik.http.routers.shinymicrobiome-secured.rule=Host(`shinymicrobiome.fredhutch.org`)"
         - "traefik.http.routers.shinymicrobiome.entrypoints=web,web-secured"
-        - "traefik.http.services.shinymicrobiome.loadbalancer.server.port=8888" # it seems you always need to give traefik a port so it 'notices' the service
+        - "traefik.http.services.shinymicrobiome.loadbalancer.server.port=3838" # it seems you always need to give traefik a port so it 'notices' the service
         - "traefik.http.routers.shinymicrobiome.tls=true"
 
 networks:

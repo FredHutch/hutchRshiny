@@ -26,7 +26,7 @@ test:
     - name: sc-registry.fredhutch.org/shinymicrobiome:test
       alias: shinymicrobiome
   script:
-    - sleep 15 && curl -sI  http://shinymicrobiome:8888  |head -1|grep -q "200 OK"
+    - sleep 15 && curl -sI  http://shinymicrobiome:3838  |head -1|grep -q "200 OK"
 
 
 deploy:
