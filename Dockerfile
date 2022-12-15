@@ -8,6 +8,7 @@ RUN R -e "install.packages(c('BiocManager','remotes', 'detectseparation'),depend
     R -e "remotes::install_github('adw96/breakaway')"
 RUN rm -rf /srv/shiny-server/
 ADD ./app/ /srv/shiny-server/
+RUN chown -R shiny:shiny /srv/shiny-server/
 EXPOSE 3838
 WORKDIR /srv/shiny-server/
 CMD /usr/bin/shiny-server.sh
