@@ -1,9 +1,21 @@
-version: '2'
+version: '3.3'
 services:
   shinymicrobiome:
-    image: dockerimages.fhcrc.org/shinymicrobiome:latest
+    image: sc-registry.fredhutch.org/shinymicrobiome:latest
+    networks:
+      - proxy
+    deploy:
+      restart_policy:
+        condition: on-failure
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.shinymicrobiome.rule=Host(`shinymicrobiome.fredhutch.org`)"
+        - "traefik.http.routers.shinymicrobiome-secured.rule=Host(`shinymicrobiome.fredhutch.org`)"
+        - "traefik.http.routers.shinymicrobiome.entrypoints=web,web-secured"
+        - "traefik.http.services.shinymicrobiome.loadbalancer.server.port=8888" # it seems you always need to give traefik a port so it 'notices' the service
+        - "traefik.http.routers.shinymicrobiome.tls=true"
 
-    labels:
-      io.rancher.container.pull_image: always
+networks:
+  proxy:
+    external: true
 
-    restart: always
