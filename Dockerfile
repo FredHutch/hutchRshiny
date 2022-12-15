@@ -10,4 +10,4 @@ RUN rm -rf /srv/shiny-server/
 ADD ./app/ /srv/shiny-server/01_hello
 EXPOSE 8888
 WORKDIR /srv/shiny-server/01_hello
-CMD R -f start.R
+CMD /usr/bin/shiny-server.sh
