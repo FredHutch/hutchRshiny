@@ -1,5 +1,5 @@
 # build me as fredhutch/shinymicrobiome
-FROM fredhutch/r-shiny-server-base:3.6.0
+FROM fredhutch/r-shiny-server-base:4.3.2
 RUN apt-get update
 RUN apt-get install -y pandoc libsodium-dev
 RUN R -e "install.packages(c('BiocManager','remotes', 'detectseparation'),dependencies=TRUE, repos='http://cran.rstudio.com/')" && \
